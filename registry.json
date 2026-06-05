@@ -1,0 +1,28 @@
+{
+    "plugins": [
+        {
+            "slug": "accounting",
+            "name": "Accounting",
+            "description": "Modul invoice dan pembukuan",
+            "version": "1.0.0",
+            "author": "febriandto",
+            "category": "Finance",
+            "github_url": "https://github.com/febriandto/erp-plugin-accounting",
+            "icon": "ti ti-file-invoice",
+            "screenshots": [],
+            "depends": []
+        },
+        {
+            "slug": "inventory",
+            "name": "Inventory",
+            "description": "Modul manajemen produk dan stok",
+            "version": "1.0.0",
+            "author": "febriandto",
+            "category": "Operations",
+            "github_url": "https://github.com/febriandto/erp-plugin-inventory",
+            "icon": "ti ti-package",
+            "screenshots": [],
+            "depends": []
+        }
+    ]
+}
