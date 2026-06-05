@@ -10,7 +10,8 @@
       "github_url": "https://github.com/febriandto/erp-plugin-accounting",
       "icon": "ti ti-file-invoice",
       "screenshots": [],
-      "depends": []
+      "depends": [],
+      "download_url": "https://github.com/febriandto/erp-plugin-accounting/archive/refs/tags/v1.0.1.zip"
     },
     {
       "slug": "inventory",
