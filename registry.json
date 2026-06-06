@@ -38,6 +38,17 @@
       "screenshots": [],
       "depends": [],
       "download_url": "https://github.com/febriandto/erp-plugin-sales-order/archive/refs/tags/v1.0.1.zip"
+    },
+    {
+      "slug": "purchasing",
+      "name": "Purchasing",
+      "version": "1.0.0",
+      "description": "Manajemen pembelian: Purchase Order, Vendor, dan Penerimaan Barang",
+      "author": "febriandto",
+      "category": "General",
+      "icon": "ti ti-puzzle",
+      "github_url": "https://github.com/febriandto/erp-plugin-purchasing",
+      "download_url": "https://github.com/febriandto/erp-plugin-purchasing/archive/refs/tags/v1.0.0.zip"
     }
   ]
 }
