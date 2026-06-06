@@ -3,6 +3,7 @@ name: Register Plugin
 on:
   repository_dispatch:
     types: [plugin-release]
+  workflow_dispatch:
 
 jobs:
   register:
