@@ -23,7 +23,8 @@
       "github_url": "https://github.com/febriandto/erp-plugin-inventory",
       "icon": "ti ti-package",
       "screenshots": [],
-      "depends": []
+      "depends": [],
+      "download_url": "https://github.com/febriandto/erp-plugin-inventory/archive/refs/heads/main.zip"
     },
     {
       "slug": "sales-order",
