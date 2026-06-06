@@ -24,6 +24,19 @@
       "icon": "ti ti-package",
       "screenshots": [],
       "depends": []
+    },
+    {
+      "slug": "sales-order",
+      "name": "Sales Order",
+      "description": "Manajemen sales order dan penjualan",
+      "version": "1.0.0",
+      "author": "febriandto",
+      "category": "Sales",
+      "github_url": "https://github.com/febriandto/erp-plugin-sales-order",
+      "icon": "ti ti-shopping-cart",
+      "screenshots": [],
+      "depends": [],
+      "download_url": "https://github.com/febriandto/erp-plugin-sales-order/archive/refs/heads/main.zip"
     }
   ]
 }
