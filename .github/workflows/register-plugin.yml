@@ -1,0 +1,91 @@
+name: Register Plugin
+
+on:
+  repository_dispatch:
+    types: [plugin-release]
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate payload
+        run: |
+          if [ -z "${{ github.event.client_payload.github_url }}" ]; then
+            echo "Error: github_url is required"
+            exit 1
+          fi
+          if [ -z "${{ github.event.client_payload.download_url }}" ]; then
+            echo "Error: download_url is required"
+            exit 1
+          fi
+
+      - name: Fetch plugin.json from plugin repo
+        id: plugin
+        run: |
+          GITHUB_URL="${{ github.event.client_payload.github_url }}"
+          REPO_PATH=$(echo "$GITHUB_URL" | sed 's|https://github.com/||')
+          RAW_URL="https://raw.githubusercontent.com/$REPO_PATH/main/plugin.json"
+          echo "Fetching: $RAW_URL"
+          PLUGIN_JSON=$(curl -sf "$RAW_URL")
+          if [ $? -ne 0 ]; then
+            echo "Error: Cannot fetch plugin.json from $RAW_URL"
+            exit 1
+          fi
+          SLUG=$(echo "$PLUGIN_JSON" | jq -r '.slug // empty')
+          NAME=$(echo "$PLUGIN_JSON" | jq -r '.name // empty')
+          VERSION=$(echo "$PLUGIN_JSON" | jq -r '.version // empty')
+          if [ -z "$SLUG" ] || [ -z "$NAME" ] || [ -z "$VERSION" ]; then
+            echo "Error: plugin.json missing required fields (slug, name, version)"
+            exit 1
+          fi
+          echo "slug=$SLUG" >> $GITHUB_OUTPUT
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "description=$(echo "$PLUGIN_JSON" | jq -r '.description // ""')" >> $GITHUB_OUTPUT
+          echo "author=$(echo "$PLUGIN_JSON" | jq -r '.author // ""')" >> $GITHUB_OUTPUT
+          echo "icon=$(echo "$PLUGIN_JSON" | jq -r '.icon // "ti ti-puzzle"')" >> $GITHUB_OUTPUT
+          echo "category=$(echo "$PLUGIN_JSON" | jq -r '.category // "General"')" >> $GITHUB_OUTPUT
+
+      - name: Upsert registry.json
+        run: |
+          SLUG="${{ steps.plugin.outputs.slug }}"
+          EXISTS=$(jq --arg slug "$SLUG" '.plugins | any(.slug == $slug)' registry.json)
+          if [ "$EXISTS" = "true" ]; then
+            echo "Updating existing plugin: $SLUG"
+            jq --arg slug "$SLUG" \
+               --arg version "${{ steps.plugin.outputs.version }}" \
+               --arg url "${{ github.event.client_payload.download_url }}" \
+               '.plugins = [.plugins[] | if .slug == $slug then .version = $version | .download_url = $url else . end]' \
+               registry.json > tmp.json && mv tmp.json registry.json
+          else
+            echo "Registering new plugin: $SLUG"
+            jq --arg slug "$SLUG" \
+               --arg name "${{ steps.plugin.outputs.name }}" \
+               --arg version "${{ steps.plugin.outputs.version }}" \
+               --arg description "${{ steps.plugin.outputs.description }}" \
+               --arg author "${{ steps.plugin.outputs.author }}" \
+               --arg icon "${{ steps.plugin.outputs.icon }}" \
+               --arg category "${{ steps.plugin.outputs.category }}" \
+               --arg github_url "${{ github.event.client_payload.github_url }}" \
+               --arg download_url "${{ github.event.client_payload.download_url }}" \
+               '.plugins += [{
+                 "slug": $slug, "name": $name, "version": $version,
+                 "description": $description, "author": $author,
+                 "category": $category, "icon": $icon,
+                 "github_url": $github_url, "download_url": $download_url
+               }]' \
+               registry.json > tmp.json && mv tmp.json registry.json
+          fi
+          echo "registry.json updated:"
+          cat registry.json | jq .
+
+      - name: Commit and push
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add registry.json
+          git diff --staged --quiet && echo "No changes" && exit 0
+          git commit -m "plugin: ${{ steps.plugin.outputs.slug }} v${{ steps.plugin.outputs.version }} by ${{ steps.plugin.outputs.author }}"
+          git push
